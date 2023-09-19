@@ -26,5 +26,17 @@ jobs:
       - uses: actions/checkout@v3
 
       # Runs a single command using the runners shell
+      - name: Unzip
+        run: unzip libecwj2-3.3-2006-09-06.zip
+      - name: Patch
+        run: patch -p0 < libecwj2-3.3.patch
       - name: Build
-        run: ./build_ubuntu_inside_docker.sh       
+        run: |
+          cd libecwj2-3.3
+          CFLAGS=-O2 CXXFLAGS=-O2 ./configure --prefix=/opt/libecwj2-3.3
+          make
+          mkdir -p /opt/libecwj2-3.3/include
+          make install
+          cd /
+          tar cvzf $SCRIPT_DIR/install-libecwj2-3.3-ubuntu-$(lsb_release -rs).tar.gz /opt/libecwj2-3.3
+        
